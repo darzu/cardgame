@@ -1,53 +1,86 @@
+/// <reference path="./render.ts" />
 
+console.log("hello world");
 class Position {
-    x: number = 0
-    y: number = 0
+    x: number
+    y: number
+
+    method() {
+
+    }
+
+    public constructor(init?:Partial<Position>) {
+        Object.assign(this, init);
+    }
+}
+class Grid {
+    height: number = 3
+    width: number = 5
+    rows: (Card | Enemy | null)[][] = repeat(repeat(null, this.width), this.height)
+}
+
+class State {
+    grid: Grid
 }
 
 class Card {
     cost: number = 0;
     position: Position | null = null;
 
-    bar(): boolean {
-        return true;
-    }
+    activate(pos: Position, state: State) {
 
-    baz = function(): number {
-        return 0
     }
 }
 
 class Enemy {
+    health: number = 0;
 
+    take_damage(damage: number) {
+        this.health -= damage;
+    }
 }
 
-class Grid {
-    height: number = 3
-    width: number = 5
-    rows: (Card | Enemy | null)[][] = repeat(repeat(null, this.width), this.height)
+class LittleThing {
+    health = 5;
+    
+    take_damage(damage: number) {
+        this.health -= damage;
+    }
 }
+
 class PeaShooter extends Card {
     cost: number = 1;
     health = 1;
 
-    onturn(mypos: Position, grid: Grid) {
+    myfun(mypos: Position, grid: Grid) {
         for (let y = mypos.y - 1; y >= 0; y--) {
             let thing = grid.rows[y][mypos.x];
-            if (thing) {
-                thing.damage(1);
+            if (thing instanceof Enemy) {
+                thing.take_damage(1);
                 break
             }
         }
     }
 }
 
+function startNextTurn() {
+    doOnturn(grid);
+    renderGrid(grid);
+}
+
+function doOnturn(g: Grid) {
+    // TODO enumerate grid, call 'onturn'
+}
+
+
+const grid: Grid = new Grid();
 
 function main() {
     console.log("Hello, world!")
 
     let mainEl = document.getElementById("main") as HTMLDivElement;
     
-
+    startNextTurn();
 }
 
 document.addEventListener("DOMContentLoaded", () => main(), false);

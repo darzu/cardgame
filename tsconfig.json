@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es2018",
+        // "module": "amd",
+        "target": "es2020",
         "outDir": "public",
+        // "outFile": "public/bundle.js",
         "rootDir": "src",
         "strict": true,
         "strictNullChecks": true,
-        "strictPropertyInitialization": true,
+        "strictPropertyInitialization": false,
     }
 }
