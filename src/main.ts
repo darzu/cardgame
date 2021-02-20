@@ -6,24 +6,26 @@ class Position {
     y: number
 
     method() {
-
+        
     }
 
     public constructor(init?:Partial<Position>) {
         Object.assign(this, init);
     }
 }
+
+export type Cell = Card | Enemy | null;
 export class Grid {
     height: number = 3
     width: number = 5
-    rows: (Card | Enemy | null)[][] = repeat(repeat(null, this.width), this.height)
+    columns: Cell[][] = repeat(repeat(null, this.height), this.width)
 }
 
 class State {
     grid: Grid
 }
 
-class Card {
+export class Card {
     cost: number = 0;
     position: Position | null = null;
 
@@ -32,7 +34,7 @@ class Card {
     }
 }
 
-class Enemy {
+export class Enemy {
     health: number = 0;
 
     take_damage(damage: number) {
@@ -54,7 +56,7 @@ class PeaShooter extends Card {
 
     myfun(mypos: Position, grid: Grid) {
         for (let y = mypos.y - 1; y >= 0; y--) {
-            let thing = grid.rows[y][mypos.x];
+            let thing = grid.columns[y][mypos.x];
             if (thing instanceof Enemy) {
                 thing.take_damage(1);
                 break
