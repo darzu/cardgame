@@ -3,6 +3,9 @@
         "module": "commonjs",
         "target": "es2018",
         "outDir": "public",
-        "rootDir": "src"
+        "rootDir": "src",
+        "strict": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
     }
 }

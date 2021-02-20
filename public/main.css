@@ -1,0 +1,31 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#battle-grid {
+    /* whole screen */
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    /* grid-template-columns: auto auto auto; */
+    background-color: #2195f3c0;
+    padding: 4px;
+    grid-column-gap: 4px;
+    grid-row-gap: 4px;
+    /* grid-template-rows: repeat(5, 64px); */
+    /* grid-template-columns: repeat(5, 64px); */
+}
+
+.battle-cell {
+    background-color: rgba(255, 255, 255, 0.692);
+    /* padding: 20px; */
+    font-size: 30px;
+    text-align: center;
+}
