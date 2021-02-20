@@ -1,4 +1,4 @@
-/// <reference path="./render.ts" />
+import { renderGrid } from './render.js';
 
 console.log("hello world");
 class Position {
@@ -13,7 +13,7 @@ class Position {
         Object.assign(this, init);
     }
 }
-class Grid {
+export class Grid {
     height: number = 3
     width: number = 5
     rows: (Card | Enemy | null)[][] = repeat(repeat(null, this.width), this.height)
@@ -80,6 +80,7 @@ function main() {
 
     let mainEl = document.getElementById("main") as HTMLDivElement;
     
+    renderGrid(grid);
     startNextTurn();
 }
 

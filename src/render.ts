@@ -1,8 +1,8 @@
-/// <reference path="./main.ts" />
+import { Grid } from './main.js'
 
 console.log("hello 2");
 
-function renderGrid(g: Grid) {
+export function renderGrid(g: Grid) {
     // TODO splat to html
     console.log("renderGrid")
 }
