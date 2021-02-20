@@ -1,0 +1,20 @@
+
+    forEach(f: (c: Cell, pos: Position) => any) {
+        this.columns.forEach((col, x) => {
+            col.forEach((cell, y) => {
+                f(cell, {x, y})
+            })
+        });
+    }
+
+    forEachEnemy(f: (c: Enemy, pos: Position) => any) {
+        this.forEach((cell, pos) => {
+            if (cell instanceof Enemy) f(cell, pos)
+        })
+    }
+
+    forEachCard(f: (c: Card, pos: Position) => any) {
+        this.forEach((cell, pos) => {
+            if (cell instanceof Card) f(cell, pos)
+        })
+    }

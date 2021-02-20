@@ -13,9 +13,9 @@ function removeChildren(n: Node) {
 function drawCell(c: Cell, x: number, y: number) {
     let content = "";
     if (c instanceof Card)
-        content = "card"
+        content = `${c.name} h${c.health}`
     else if (c instanceof Enemy)
-        content = "enemy"
+        content = `${c.name} h${c.health}`
         
     const n = document.createElement("div");
     n.classList.add("battle-cell")
@@ -31,10 +31,12 @@ export function renderGrid(g: Grid) {
     console.log("renderGrid")
 
     removeChildren(battleGrid)
+    battleGrid.style.gridTemplateRows = `repeat(${g.height}, 64px)`
+    battleGrid.style.gridTemplateColumns = `repeat(${g.width}, 64px)`
 
     for (let x = 0; x < g.width; x++) {
         for (let y = 0; y < g.height; y++) {
-            const c = drawCell(g.columns[x][y], x, y)
+            const c = drawCell(g.columns[x][y], x, g.height - 1 - y)
             battleGrid.appendChild(c)
         }
     }
