@@ -1,41 +1,54 @@
 import { renderGrid } from './render.js';
 
-console.log("hello world");
-class Position {
-    x: number
-    y: number
+class State {
+    grid: Grid
+}
 
-    method() {
-        
+export type Cell = Enemy | Card | null;
+
+export class Grid {
+    height: number = 3
+    width: number = 5
+    columns: Cell[][] = repeat(repeat(null, this.width), this.height)
+
+    get(pos: Position): Cell {
+        return this.columns[pos.x][pos.y]
     }
+}
+
+class Position {
+    x: number = 0
+    y: number = 0
 
     public constructor(init?:Partial<Position>) {
         Object.assign(this, init);
     }
 }
 
-export type Cell = Card | Enemy | null;
-export class Grid {
-    height: number = 3
-    width: number = 5
-    columns: Cell[][] = repeat(repeat(null, this.height), this.width)
-}
-
-class State {
-    grid: Grid
-}
-
 export class Card {
     cost: number = 0;
-    position: Position | null = null;
 
-    activate(pos: Position, state: State) {
+    activate(_pos: Position, _state: State): void {}
+}
 
+class PeaShooter extends Card {
+    cost: number = 1;
+    health = 1;
+
+    activate(pos: Position, state: State): void {
+        let col = state.grid.columns[pos.x];
+        for (let y = pos.y + 1; y < col.length; y++) {
+            let thing = col[y];
+            if (thing instanceof Enemy) {
+                thing.take_damage(1);
+                break
+            }
+        }
     }
 }
 
 export class Enemy {
-    health: number = 0;
+    health: number = 5;
 
     take_damage(damage: number) {
         this.health -= damage;
@@ -44,24 +57,9 @@ export class Enemy {
 
 class LittleThing {
     health = 5;
-    
+
     take_damage(damage: number) {
         this.health -= damage;
-    }
-}
-
-class PeaShooter extends Card {
-    cost: number = 1;
-    health = 1;
-
-    myfun(mypos: Position, grid: Grid) {
-        for (let y = mypos.y - 1; y >= 0; y--) {
-            let thing = grid.columns[y][mypos.x];
-            if (thing instanceof Enemy) {
-                thing.take_damage(1);
-                break
-            }
-        }
     }
 }
 
@@ -81,7 +79,6 @@ function main() {
     console.log("Hello, world!")
 
     let mainEl = document.getElementById("main") as HTMLDivElement;
-    
     renderGrid(grid);
     startNextTurn();
 }
