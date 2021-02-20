@@ -1,31 +1,54 @@
 body {
     margin: 0;
     padding: 0;
-}
-
-#battle-grid {
-    /* whole screen */
+    overflow: hidden;
     top: 0;
     left: 0;
-    right: 0;
+    height: 100%;
     margin: 0;
     padding: 0;
-    height: 100%;
+
+    font-family: sans-serif;
+}
+
+.grid {
+    left: 0;
+    right: 0;
     width: 100%;
+    margin: 0;
+    padding: 0;
 
     display: grid;
-    /* grid-template-columns: auto auto auto; */
+
     background-color: #2195f3c0;
+
     padding: 4px;
     grid-column-gap: 4px;
     grid-row-gap: 4px;
+}
+
+#battle-grid {
+    /* display: grid; */
+    /* grid-template-columns: auto auto auto; */
     /* grid-template-rows: repeat(5, 64px); */
     /* grid-template-columns: repeat(5, 64px); */
 }
 
+.battle-cell, .card-cell {
+  transition: transform .2s; /* Animation */
+}
+.battle-cell:hover, .card-cell:hover {
+    transform: scale(1.5);
+}
+
 .battle-cell {
-    background-color: rgba(255, 255, 255, 0.692);
-    /* padding: 20px; */
-    font-size: 30px;
+    background-color: #666A;
     text-align: center;
+    color: white;
+}
+
+.card-cell {
+    background-color: #666A;
+    text-align: center;
+    color: white;
 }

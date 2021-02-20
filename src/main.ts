@@ -17,10 +17,14 @@ class Card {
     }
 }
 
+class Enemy {
+
+}
+
 class Grid {
     height: number = 3
     width: number = 5
-    rows: (Card | null)[][] = repeat(repeat(null, this.width), this.height)
+    rows: (Card | Enemy | null)[][] = repeat(repeat(null, this.width), this.height)
 }
 class PeaShooter extends Card {
     cost: number = 1;

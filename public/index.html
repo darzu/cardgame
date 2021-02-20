@@ -6,21 +6,27 @@
 
 <body>
     <div id="main">
-        <div id="battle-grid" style="grid-template-rows: repeat(5, 64px); grid-template-columns: repeat(5, 64px);">
+        <div id="battle-grid" class="grid" 
+        style="grid-template-rows: repeat(5, 64px); grid-template-columns: repeat(5, 64px);">
+            <div class="battle-cell" ></div>
+            <div class="battle-cell" ></div>
+            <div class="battle-cell" style="background: #333A; grid-column: 2; grid-row: 2;" >1</div>
+            <div class="battle-cell" style="background: #333A; grid-column: 3; grid-row: 3;" >2</div>
+            <div class="battle-cell" style="background: #333A; grid-column: 3; grid-row: 5;" >3</div>
             <div class="battle-cell" ></div>
             <div class="battle-cell" ></div>
             <div class="battle-cell" ></div>
             <div class="battle-cell" ></div>
-            <div class="battle-cell" style="background: #333; grid-column: 2; grid-row: 2;" ></div>
-            <div class="battle-cell" style="background: #333; grid-column: 3; grid-row: 3;" ></div>
-            <div class="battle-cell" ></div>
-            <div class="battle-cell" ></div>
-            <div class="battle-cell" ></div>
-            <div class="battle-cell" ></div>
-            <div class="battle-cell" ></div>
-            <div class="battle-cell" ></div>
-            <div class="battle-cell" ></div>
-            <div class="battle-cell" ></div>
+        </div>
+        <div id="card-grid" class="grid" 
+        style="grid-template-rows: repeat(2, 114px); grid-template-columns: repeat(5, 64px);">
+            <div class="card-cell" >I'm a card</div>
+            <div class="card-cell" ></div>
+            <div class="card-cell" ></div>
+            <div class="card-cell" ></div>
+            <div class="card-cell" ></div>
+            <div class="card-cell" ></div>
+            <div class="card-cell" ></div>
         </div>
     </div>
 </body>
