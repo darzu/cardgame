@@ -9,6 +9,8 @@ body {
     padding: 0;
 
     font-family: sans-serif;
+
+    background-color: #1cca56c0;
 }
 
 .grid {
@@ -20,18 +22,9 @@ body {
 
     display: grid;
 
-    background-color: #1cca56c0;
-
     padding: 4px;
     grid-column-gap: 4px;
     grid-row-gap: 4px;
-}
-
-#battle-grid {
-    /* display: grid; */
-    /* grid-template-columns: auto auto auto; */
-    /* grid-template-rows: repeat(5, 64px); */
-    /* grid-template-columns: repeat(5, 64px); */
 }
 
 .battle-cell, .card-cell {
@@ -52,9 +45,48 @@ body {
     background-color: #666A;
     text-align: center;
     color: white;
+
+    width: 60px;
+    height: 110px;
 }
 
 button {
     width: 100px;
     height: 50px;
+}
+
+#hand-grid {
+    display: grid;
+
+    padding: 4px;
+    grid-column-gap: 4px;
+    grid-row-gap: 4px;
+}
+
+#card-area {
+    display: flex;
+    flex-direction: row;
+
+    
+}
+#card-area * {
+    /* display: inline-flex; */
+    flex-grow: 4;
+}
+#card-area:first-child {
+    flex-grow: 1;
+}
+#card-area:last-child {
+    flex-grow: 1;
+}
+
+.card-pile {
+    display: grid;
+
+    padding: 4px;
+    grid-column-gap: 4px;
+    grid-row-gap: 4px;
+
+    grid-template-rows: repeat(1, 114px);
+    grid-template-columns: repeat(10, 12px);
 }

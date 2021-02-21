@@ -43,7 +43,12 @@ export class GameState {
     height: number
     enemies: Enemy[]
     cardsInPlay: Card[]
-    // grid: Grid
+
+    // deck
+    drawPile: Card[]
+    hand: Card[]
+    discardPile: Card[]
+
     constructor(init: Partial<GameState>) {
         Object.assign(this, init);
     }
@@ -142,7 +147,7 @@ export class Card {
     }
 }
 
-function mk<T>(t: new () => T, opts: Partial<T>): T {
+function mk<T>(t: new () => T, opts: Partial<T> = {}): T {
     return Object.assign(new t(), opts);
 }
 
@@ -208,12 +213,27 @@ function main() {
         height: 5,
         enemies: [],
         cardsInPlay: [],
+        hand: [],
+        drawPile: [],
+        discardPile: [],
         // grid
     });
 
     state.cardsInPlay.push(mk(PeaShooter, {x: 0, y: 1}))
     state.enemies.push(mk(LittleThing, {x: 0, y: 3}))
     state.enemies.push(mk(LittleThing, {x: 0, y: 4}))
+
+    state.hand.push(mk(PeaShooter))
+    state.hand.push(mk(PeaShooter))
+    state.hand.push(mk(PeaShooter))
+    state.drawPile.push(mk(PeaShooter))
+    state.drawPile.push(mk(PeaShooter))
+    state.drawPile.push(mk(PeaShooter))
+    state.drawPile.push(mk(PeaShooter))
+    state.drawPile.push(mk(PeaShooter))
+    state.discardPile.push(mk(PeaShooter))
+    state.discardPile.push(mk(PeaShooter))
+
     // state.cardsInPlay.push(Object.assign(new PeaShooter(), {x: 0, y: 1}))
     // state.enemies.push(Object.assign(new LittleThing(), {x: 0, y: 3}))
     // state.enemies.push(Object.assign(new LittleThing(), {x: 0, y: 4}))
