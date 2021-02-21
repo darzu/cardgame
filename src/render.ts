@@ -1,5 +1,6 @@
 import { Card, Enemy, GameState } from "./main.js";
-import * as m from './mithril.js'
+import * as Mithril from './mithril.js'
+const m = (window as any).m as Mithril.Static;
 
 console.log("hello 2");
 
@@ -98,7 +99,7 @@ export function renderState(s: GameState) {
     // ((window as any).m as Mithril).render(document.body, "hello world");   
     // diffhtml ?
     m.render(document.body, "hello world");    
-    // let r = m("div", "foo")
+    let r = m("div", "foo")
 }
 
 // helpers
