@@ -89,6 +89,13 @@ export class GameState {
         //         this.grid.set(pos, null)
         //     }
         // })
+
+        // draw
+        // TODO: hand size?
+        if (this.drawPile.length)
+            this.hand.push(this.drawPile.pop()!)
+        if (this.hand.length > 5)
+            this.discardPile.push(this.hand.pop()!)
     }
 }
 

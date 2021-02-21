@@ -77,13 +77,29 @@ let playAreaEl = document.getElementById("play-area") as HTMLDivElement;
 //     replaceChildren(discardPileEl, es);
 // }
 
-function renderHandCard(c: Card, {x, y}: Position): Mithril.Vnode {
-    const v = m("div", {class: "hand-card"}, c.name);
-    v.attrs["style"] = `transform: translate(${x}px, ${y}px)`;
+type Attrs = {class: string, style: string}
+type Vnode = Mithril.Vnode<Attrs, any>;
+
+function mkHandCard(c: Card): Vnode {
+    const v = m("div", {class: "hand-card", style: ""}, c.name);
+    return v;
+}
+function translate(v: Vnode, {x, y}: Position): Vnode {
+    v.attrs.style = `transform: translate(${x}px, ${y}px)`;
     return v;
 }
 
-let turn =  0;
+function mkCardPile(cs: Card[], {x, y}: Position) {
+    const vs = cs.map(mkHandCard)
+        .map((c, i) => translate(c, {x: x + i * 12, y: y}))
+    return vs;
+}
+function mkCardHand(cs: Card[], {x, y}: Position) {
+    const vs = cs.map(mkHandCard)
+        .map((c, i) => translate(c, {x: x + i * 64, y: y}))
+    return vs;
+}
+
 export function renderState(s: GameState) {
     // grid
     // removeChildren(battleGridEl);
@@ -109,10 +125,14 @@ export function renderState(s: GameState) {
     // // m.render(document.body, "hello world");    
     // // let r = m("div", "foo")
 
-    const cs = s.hand.map((c, i) => renderHandCard(c, {x: i * 24, y: 64 * turn}))
-    m.render(playAreaEl, cs);
-
-    turn++; // TODO hack
+    // const cs = s.hand
+    //     .map(mkHandCard)
+    //     .map((c, i) => translate(c, {x: i * 24, y: 64 * turn}))
+    const drawPile = mkCardPile(s.drawPile, {x: 24, y: 24})
+    const handPile = mkCardHand(s.hand, {x: 64, y: 148})
+    const discardPile = mkCardPile(s.discardPile, {x: 424, y: 24})
+    const allCards = [...drawPile, ...handPile, ...discardPile]
+    m.render(playAreaEl, allCards);
 }
 
 // helpers
