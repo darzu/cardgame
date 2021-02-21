@@ -13,6 +13,11 @@ import { renderState } from './render.js';
 //     throw
 // }
 
+function assert(cond: boolean, msg: string): void | never {
+    if (!cond)
+        throw msg;
+}
+
 function overlaps(a: Box, b: Box): boolean {
     return (
       a.x < b.x + b.width &&
@@ -36,29 +41,37 @@ function byKey<T>(f: (t: T) => number): (a: T, b: T) => number {
 export class GameState {
     width: number
     height: number
-    enemies: WithPlayState<Enemy>[]
-    cardsInPlay: WithPlayState<Card>[]
+    enemies: Enemy[]
+    cardsInPlay: Card[]
     // grid: Grid
     constructor(init: Partial<GameState>) {
         Object.assign(this, init);
     }
 
-    enemiesInColumn(x: number, aboveY: number): WithPlayState<Enemy>[] {
+    enemiesInColumn(x: number, aboveY: number): Enemy[] {
         let col = {x, y: aboveY, height: 100, width: 1}
-        let result = this.enemies.filter(e => overlaps(col, {...e.state, ...e.thing}));
-        result.sort(byKey(e => e.state.y))
+        let result = this.enemies.filter(e => overlaps(col, e));
+        result.sort(byKey(e => e.y))
         return result;
     }
 
+    cardsInBox(box: Box): Card[] {
+        return this.cardsInPlay.filter(c => overlaps(box, c))
+    }
+
+    thingsInBox(box: Box): (Card | Enemy)[] {
+        return [...this.cardsInPlay, ...this.enemies].filter(c => overlaps(box, c))
+    }
+
     step() {
-        this.enemies.forEach(e => e.thing.activate(e.state, this));
-        this.cardsInPlay.forEach(c => c.thing.activate(c.state, this));
+        this.enemies.forEach(e => e.activate(this));
+        this.cardsInPlay.forEach(c => c.activate(this));
         // this.cards.forEach(e => e.activate(e, this));
         // this.grid.forEach(Enemy, (e, pos) => e.activate(pos, this))
         // this.grid.forEach(Card, (c, pos) => c.activate(pos, this))
 
-        this.enemies = this.enemies.filter(e => e.thing.health > 0)
-        this.cardsInPlay = this.cardsInPlay.filter(c => c.thing.health > 0)
+        this.enemies = this.enemies.filter(e => e.health > 0)
+        this.cardsInPlay = this.cardsInPlay.filter(c => c.health > 0)
 
         // this.grid.forEach(Enemy, (e, pos) => {
         //     if (e.health <= 0) {
@@ -114,24 +127,23 @@ export interface Position {
 }
 type Box = Position & Size;
 
-export interface PlayState extends Position {
-    x: number,
-    y: number,
-}
-
-type WithPlayState<T> = {
-    thing: T,
-    state: PlayState,
-}
-
-export abstract class Card {
+export class Card {
     health: number = 0;
     cost: number = 0;
     width: number = 1;
     height: number = 1;
+    x: number;
+    y: number;
     name: string = "card";
 
-    activate(play: PlayState, _state: GameState) {}
+    activate(state: GameState) {}
+    takeDmg(damage: number) {
+        this.health -= damage;
+    }
+}
+
+function mk<T>(t: new () => T, opts: Partial<T>): T {
+    return Object.assign(new t(), opts);
 }
 
 class PeaShooter extends Card {
@@ -139,24 +151,26 @@ class PeaShooter extends Card {
     health = 10;
     name: string = "pshoot";
 
-    activate(p: PlayState, state: GameState): void {
-        let enemies = state.enemiesInColumn(p.x, p.y + this.height);
+    activate(state: GameState): void {
+        let enemies = state.enemiesInColumn(this.x, this.y + this.height);
         if (enemies.length > 0) {
-            enemies[0].thing.take_damage(1)
+            enemies[0].takeDmg(1)
         }
     }
 }
 
 
 
-export class Enemy {
+export abstract class Enemy {
     health: number = 5;
     name: string = "enemy";
     width: number = 1;
     height: number = 1;
+    x: number;
+    y: number;
 
-    activate(pos: Position, state: GameState): void {}
-    take_damage(damage: number) {
+    activate(state: GameState): void {}
+    takeDmg(damage: number) {
         this.health -= damage;
     }
 }
@@ -164,6 +178,20 @@ export class Enemy {
 class LittleThing extends Enemy {
     name: string = "lil";
     health = 5;
+
+    activate(state: GameState): void {
+        if (this.y > 0) {
+            let thingsBelow = state.thingsInBox({...this, y: this.y - 1});
+            if (thingsBelow.length == 0) {
+                this.y -= 1;
+            } else {
+                thingsBelow.forEach(c => {
+                    if (c instanceof Card)
+                        c.takeDmg(1)
+                });
+            }
+        }
+    }
 }
 
 function startNextTurn(state: GameState) {
@@ -183,9 +211,12 @@ function main() {
         // grid
     });
 
-    state.cardsInPlay.push({thing: new PeaShooter(), state: {x: 0, y: 1}})
-    state.enemies.push({thing: new LittleThing(), state: {x: 0, y: 3}})
-    state.enemies.push({thing: new LittleThing(), state: {x: 0, y: 4}})
+    state.cardsInPlay.push(mk(PeaShooter, {x: 0, y: 1}))
+    state.enemies.push(mk(LittleThing, {x: 0, y: 3}))
+    state.enemies.push(mk(LittleThing, {x: 0, y: 4}))
+    // state.cardsInPlay.push(Object.assign(new PeaShooter(), {x: 0, y: 1}))
+    // state.enemies.push(Object.assign(new LittleThing(), {x: 0, y: 3}))
+    // state.enemies.push(Object.assign(new LittleThing(), {x: 0, y: 4}))
     // state.grid.columns[0][1] = new PeaShooter();
     // state.grid.columns[0][3] = new LittleThing();
     // state.grid.columns[0][4] = new LittleThing();
