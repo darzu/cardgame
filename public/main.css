@@ -13,41 +13,17 @@ body {
     background-color: #1cca56c0;
 }
 
-.grid {
-    left: 0;
-    right: 0;
+#play-area {
     width: 100%;
-    margin: 0;
-    padding: 0;
-
-    display: grid;
-
-    padding: 4px;
-    grid-column-gap: 4px;
-    grid-row-gap: 4px;
+    height: 80%;
 }
 
-.battle-cell, .card-cell {
-  transition: transform .2s; /* Animation */
-  padding: 2px;
-}
-.battle-cell:hover, .card-cell:hover {
-    transform: scale(1.5);
-}
-
-.battle-cell {
-    background-color: #666A;
-    text-align: center;
-    color: white;
-}
-
-.card-cell {
-    background-color: #666A;
-    text-align: center;
-    color: white;
-
-    width: 60px;
-    height: 110px;
+#play-area * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(0px, 0px);
+    transition: transform .2s; /* Animation */
 }
 
 button {
@@ -55,38 +31,8 @@ button {
     height: 50px;
 }
 
-#hand-grid {
-    display: grid;
-
-    padding: 4px;
-    grid-column-gap: 4px;
-    grid-row-gap: 4px;
-}
-
-#card-area {
-    display: flex;
-    flex-direction: row;
-
-    
-}
-#card-area * {
-    /* display: inline-flex; */
-    flex-grow: 4;
-}
-#card-area:first-child {
-    flex-grow: 1;
-}
-#card-area:last-child {
-    flex-grow: 1;
-}
-
-.card-pile {
-    display: grid;
-
-    padding: 4px;
-    grid-column-gap: 4px;
-    grid-row-gap: 4px;
-
-    grid-template-rows: repeat(1, 114px);
-    grid-template-columns: repeat(10, 12px);
+.hand-card {
+    width: 60px;
+    height: 110px;
+    background-color: #3333;
 }

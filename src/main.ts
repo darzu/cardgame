@@ -126,7 +126,7 @@ export interface Size {
     width: number,
     height: number
 }
-export interface Position {
+export type Position = {
     x: number
     y: number
 }
