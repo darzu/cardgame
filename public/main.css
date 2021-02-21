@@ -20,7 +20,7 @@ body {
 
     display: grid;
 
-    background-color: #2195f3c0;
+    background-color: #1cca56c0;
 
     padding: 4px;
     grid-column-gap: 4px;
@@ -52,4 +52,9 @@ body {
     background-color: #666A;
     text-align: center;
     color: white;
+}
+
+button {
+    width: 100px;
+    height: 50px;
 }
