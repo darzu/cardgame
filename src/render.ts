@@ -1,4 +1,4 @@
-import { Card, Cell, Enemy, Grid } from './main.js'
+import { Card, Enemy, GameState, PlayState } from './main.js'
 
 console.log("hello 2");
 
@@ -10,7 +10,7 @@ function removeChildren(n: Node) {
     }
 }
 
-function drawCell(c: Cell, x: number, y: number) {
+function drawEnt(c: Card | Enemy, s: PlayState, height: number) {
     let content = "";
     if (c instanceof Card)
         content = `${c.name} h${c.health}`
@@ -20,24 +20,29 @@ function drawCell(c: Cell, x: number, y: number) {
     const n = document.createElement("div");
     n.classList.add("battle-cell")
     n.style.background = "#333A"
-    n.style.gridColumn = (x + 1).toString()
-    n.style.gridRow = (y + 1).toString()
+    n.style.gridColumn = (s.x + 1).toString()
+    n.style.gridRow = (height - s.y + 1).toString()
     n.innerText = content;
     return n;
 }
 
-export function renderGrid(g: Grid) {
+export function renderState(s: GameState) {
     // TODO splat to html
-    console.log("renderGrid")
+    console.log("renderState")
+
+    // console.dir({s})
 
     removeChildren(battleGrid)
-    battleGrid.style.gridTemplateRows = `repeat(${g.height}, 64px)`
-    battleGrid.style.gridTemplateColumns = `repeat(${g.width}, 64px)`
+    battleGrid.style.gridTemplateRows = `repeat(${s.height}, 64px)`
+    battleGrid.style.gridTemplateColumns = `repeat(${s.width}, 64px)`
 
-    for (let x = 0; x < g.width; x++) {
-        for (let y = 0; y < g.height; y++) {
-            const c = drawCell(g.columns[x][y], x, g.height - 1 - y)
-            battleGrid.appendChild(c)
-        }
-    }
+    const es = [...s.enemies, ...s.cardsInPlay].map(({thing, state}) => drawEnt(thing, state, s.height))
+    es.forEach(e => battleGrid.appendChild(e))
+
+    // for (let x = 0; x < g.width; x++) {
+    //     for (let y = 0; y < g.height; y++) {
+    //         const c = drawCell(g.columns[x][y], x, g.height - 1 - y)
+    //         battleGrid.appendChild(c)
+    //     }
+    // }
 }
