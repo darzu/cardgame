@@ -77,26 +77,41 @@ let playAreaEl = document.getElementById("play-area") as HTMLDivElement;
 //     replaceChildren(discardPileEl, es);
 // }
 
-type Attrs = {class: string, style: string}
+type Attrs = { class: string, style: string }
 type Vnode = Mithril.Vnode<Attrs, any>;
 
 function mkHandCard(c: Card): Vnode {
-    const v = m("div", {class: "hand-card", style: ""}, c.name);
+    const v = m("div", { class: "hand-card", style: "" }, c.name);
     return v;
 }
-function translate(v: Vnode, {x, y}: Position): Vnode {
-    v.attrs.style = `transform: translate(${x}px, ${y}px)`;
+const place = ({ x, y }: Position) => `translate(${x}px, ${y}px)`;
+const rot = (turn: number) => `rotate(${turn}turn)`;
+function transform(v: Vnode, ...ops: string[]): Vnode {
+    v.attrs.style += "transform: " + ops.join(" ") + ";"
     return v;
 }
 
-function mkCardPile(cs: Card[], {x, y}: Position) {
+function mkCardPile(cs: Card[], { x, y }: Position) {
+    const rotRange = 1;
+    const rotStep = rotRange / cs.length;
     const vs = cs.map(mkHandCard)
-        .map((c, i) => translate(c, {x: x + i * 12, y: y}))
+        .map((c, i) => transform(c,
+            place({ x: x + i * 2, y: y }),
+            rot(-0.5*rotRange + rotStep * i)
+        ))
     return vs;
 }
-function mkCardHand(cs: Card[], {x, y}: Position) {
+function mkCardHand(cs: Card[], { x, y }: Position) {
+    const curve = (x: number) => ((x - (cs.length - 1)*0.5) * 3)**2 - ((cs.length - 1)*0.5*3)**2
+
+    const rotRange = 0.1;
+    const rotStep = rotRange / (cs.length - 1);
+
     const vs = cs.map(mkHandCard)
-        .map((c, i) => translate(c, {x: x + i * 64, y: y}))
+        .map((c, i) => transform(c,
+            place({ x: x + i * 64, y: y + curve(i) }),
+            rot(-0.5*rotRange + rotStep * i)
+        ))
     return vs;
 }
 
@@ -119,7 +134,7 @@ export function renderState(s: GameState) {
     // renderDiscardPile(s.discardPile);
 
     // // mithril ?
-    
+
     // // ((window as any).m as Mithril).render(document.body, "hello world");   
     // // diffhtml ?
     // // m.render(document.body, "hello world");    
@@ -128,9 +143,12 @@ export function renderState(s: GameState) {
     // const cs = s.hand
     //     .map(mkHandCard)
     //     .map((c, i) => translate(c, {x: i * 24, y: 64 * turn}))
-    const drawPile = mkCardPile(s.drawPile, {x: 24, y: 24})
-    const handPile = mkCardHand(s.hand, {x: 64, y: 148})
-    const discardPile = mkCardPile(s.discardPile, {x: 424, y: 24})
+    const pileWidth = 170;
+    const drawPile = mkCardPile(s.drawPile, { x: 40, y: 420 })
+    const maxHandWidth = 5 * 64;
+    const handWidth = s.hand.length * 64;
+    const handPile = mkCardHand(s.hand, { x: pileWidth + maxHandWidth*0.5 - handWidth*0.5, y: 420 })
+    const discardPile = mkCardPile(s.discardPile, { x: 170 + 5 * 64 + 70, y: 420 })
     const allCards = [...drawPile, ...handPile, ...discardPile]
     m.render(playAreaEl, allCards);
 }

@@ -24,7 +24,12 @@ body {
     left: 0;
     transform: translate(0px, 0px);
     transition: transform .2s; /* Animation */
+    
 }
+/* TODO: doesn't work with dynamic scale */
+/* #play-area div:hover {
+    transform: scale(1.5);    
+} */
 
 button {
     width: 100px;
