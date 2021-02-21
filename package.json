@@ -1,9 +1,0 @@
-{
-  "devDependencies": {
-    "@types/mithril": "^2.0.6",
-    "@types/node": "^14.14.31"
-  },
-  "dependencies": {
-    "mithril": "^2.0.4"
-  }
-}
