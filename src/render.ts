@@ -49,7 +49,7 @@ function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false) {
     // const rotStep = rotRange / cs.length;
     const vs = cs.map(mkDeckCard)
         .map((c, i) => transform(c,
-            place({ x: x + i * 2, y: y }),
+            place({ x: x + i * 2 - (cs.length - 1) * 0.5 * 2 - cardSize.width * 0.5, y: y }),
             rot(getRandRot(c.key || 0)),
             // rot(rotStep * i),
             faceDown ? scaleX(-1) : ''
@@ -108,7 +108,7 @@ function mkGridSquare({x, y}: Position): Renderable{
         key: getNextId(),
     }
     v = transform(v, 
-        place({x: gridStart.x + gridSize * x, y: gridStart.y + gridSize * y})
+        place(toGridPx({x, y}))
     )
     return v
 }
@@ -126,21 +126,48 @@ function getGridSquares({width, height}: Size): Renderable [] {
     return _gridSquares
 }
 
-export function initRenderer(s: Size) {
-    getGridSquares(s);
+
+function getPlayAreaBox(): Size & Position {
+    return playAreaEl.getBoundingClientRect();
 }
 
-const gridStart = {x: 24, y: 24}
+let gridBox: Size & Position;
+let gridRowColCount: Size;
+let centerX: number;
+let playAreaBox: Size & Position;
+const cardSize = {width: 60, height: 110};
+let cardsY: number;
+export function initRenderer(s: GameState) {
+    playAreaBox = getPlayAreaBox()
+
+    centerX = playAreaBox.width * 0.5;
+
+    // determine grid placement
+    gridRowColCount = {width: s.width, height: s.height};
+    const width = (gridSize + gridPad) * s.width
+    const height = (gridSize + gridPad) * s.height
+    gridBox = {x: centerX - width * 0.5, y: 24, width, height}
+
+    getGridSquares(gridRowColCount);
+
+    // hand placement
+    cardsY = gridBox.y + gridBox.height + 64;
+}
+
+const gridPad = 2;
+function toGridPx({x, y}: Position): Position {
+    return { x: gridBox.x + x * (gridSize + gridPad), y: gridBox.y + (gridRowColCount.height - 1 - y) * (gridSize + gridPad)}
+}
+
 const gridSize = 68;
 export function renderState(s: GameState) {
     // -- BOARD
-
     // player cards
     const inPlayCards = s.cardsInPlay.map(mkBoardCard)
         .map((c, i) => {
             const ent = s.cardsInPlay[i]
             return transform(c,
-                place({ x: gridStart.x + ent.x * gridSize, y: gridStart.y + (s.height - ent.y) * gridSize}),
+                place(toGridPx(ent)),
             )
         })
 
@@ -149,20 +176,17 @@ export function renderState(s: GameState) {
         .map((c, i) => {
             const ent = s.enemies[i]
             return transform(c,
-                place({ x: gridStart.x + ent.x * gridSize, y: gridStart.y + (s.height - ent.y) * gridSize}),
+                place(toGridPx(ent)),
             )
         })
     
     // -- DECK
-    const pileWidth = 170;
-    
     // draw pile
-    const drawPile = mkCardPile(s.drawPile, { x: 40, y: 420 }, true)
+    const drawPile = mkCardPile(s.drawPile, { x: cardSize.height * 0.7, y: cardsY }, true)
 
     // hand
-    const maxHandWidth = 5 * 64;
     const handWidth = s.hand.length * 64;
-    const handPile = mkCardHand(s.hand, { x: pileWidth + maxHandWidth*0.5 - handWidth*0.5, y: 420 })
+    const handPile = mkCardHand(s.hand, { x: centerX - handWidth*0.5, y: cardsY })
     // selected card
     handPile.filter(c => c.key === s.selected?.id)
         .forEach(c => c.class += " selected")
@@ -172,7 +196,7 @@ export function renderState(s: GameState) {
         grid = getGridSquares(s)
 
     // discard pile
-    const discardPile = mkCardPile(s.discardPile, { x: 170 + 5 * 64 + 70, y: 420 })
+    const discardPile = mkCardPile(s.discardPile, { x: playAreaBox.width - cardSize.height * 0.7, y: cardsY })
 
     // all
     const allDeckCards = [...drawPile, ...handPile, ...discardPile]
