@@ -64,3 +64,9 @@ button {
     height: 64px;
     background-color: #3333;
 }
+
+.grid-square {
+    width: 64px;
+    height: 64px;
+    background-color: rgba(194, 165, 0, 0.2);
+}

@@ -1,4 +1,4 @@
-import { Card, Enemy, GameState, onCardClick, Position } from "./main.js";
+import { Card, Enemy, GameState, getNextId, onCardClick, Position, Size } from "./main.js";
 import * as Mithril from './mithril.js'
 const m = (window as any).m as Mithril.Static;
 
@@ -100,10 +100,40 @@ function mkEnemy(e: Enemy): Renderable {
     return v;
 }
 
+function mkGridSquare({x, y}: Position): Renderable{
+    let v: Renderable = {
+        tag: "div",
+        class: "grid-square",
+        style: "",
+        key: getNextId(),
+    }
+    v = transform(v, 
+        place({x: gridStart.x + gridSize * x, y: gridStart.y + gridSize * y})
+    )
+    return v
+}
+
+let _gridSquares: Renderable[];
+function getGridSquares({width, height}: Size): Renderable [] {
+    if (!_gridSquares) {
+        _gridSquares = []
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                _gridSquares.push(mkGridSquare({x, y}))
+            }
+        }
+    }
+    return _gridSquares
+}
+
+export function initRenderer(s: Size) {
+    getGridSquares(s);
+}
+
+const gridStart = {x: 24, y: 24}
+const gridSize = 68;
 export function renderState(s: GameState) {
     // -- BOARD
-    const gridStart = {x: 24, y: 24}
-    const gridSize = 68;
 
     // player cards
     const inPlayCards = s.cardsInPlay.map(mkBoardCard)
@@ -136,6 +166,10 @@ export function renderState(s: GameState) {
     // selected card
     handPile.filter(c => c.key === s.selected?.id)
         .forEach(c => c.class += " selected")
+    // highlight grid
+    let grid: Renderable[] = []
+    if (s.selected)
+        grid = getGridSquares(s)
 
     // discard pile
     const discardPile = mkCardPile(s.discardPile, { x: 170 + 5 * 64 + 70, y: 420 })
@@ -144,7 +178,7 @@ export function renderState(s: GameState) {
     const allDeckCards = [...drawPile, ...handPile, ...discardPile]
 
     // render
-    const all = [...allDeckCards, ...inPlayCards, ...enemies];
+    const all = [...allDeckCards, ...grid, ...inPlayCards, ...enemies];
     renderAll(all);
 }
 

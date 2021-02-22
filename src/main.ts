@@ -1,4 +1,4 @@
-import { playAreaEl, renderState } from './render.js';
+import { initRenderer, playAreaEl, renderState } from './render.js';
 
 console.log("hello from main.ts")
 
@@ -128,7 +128,10 @@ export type Position = {
     y: number
 }
 type Box = Position & Size;
-let NEXT_ID = 1;
+let _NEXT_ID = 1;
+export function getNextId() {
+    return _NEXT_ID++;
+}
 
 export class Card {
     health: number = 0;
@@ -141,7 +144,7 @@ export class Card {
 
     id: number;
     constructor() {
-        this.id = NEXT_ID++;
+        this.id = getNextId();
     }
 
     activate(state: GameState) {}
@@ -179,7 +182,7 @@ export abstract class Enemy {
 
     id: number;
     constructor() {
-        this.id = NEXT_ID++;
+        this.id = getNextId();
     }
 
     activate(state: GameState): void {}
@@ -224,6 +227,8 @@ const state = new GameState({
 
 function main() {
     console.log("Hello, world!")
+
+    initRenderer(state);
 
     state.cardsInPlay.push(mk(PeaShooter, {x: 0, y: 1}))
     state.enemies.push(mk(LittleThing, {x: 0, y: 3}))
