@@ -68,5 +68,10 @@ button {
 .grid-square {
     width: 64px;
     height: 64px;
+}
+.grid-square div {
     background-color: rgba(194, 165, 0, 0.2);
+}
+.grid-square div:hover {
+    transform: scale(1.5);    
 }

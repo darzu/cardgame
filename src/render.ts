@@ -106,6 +106,9 @@ function mkGridSquare({x, y}: Position): Renderable{
         class: "grid-square",
         style: "",
         key: getNextId(),
+        content: [
+            {tag: "div", content: ""}
+        ]
     }
     v = transform(v, 
         place(toGridPx({x, y}))
