@@ -84,35 +84,9 @@ export function renderState(s: GameState) {
     renderAll(all);
 }
 
-let _prevStyles: {[key: string]: string} = {}
 function renderAll(vs: Vnode<any>[]) {
-    // we want to have smooth CSS animations even with DOM re-ordering.
-    // Mithril will ensure the DOM element stays the same during a re-order,
-    // but CSS animations won't happen after a re-order. So we fix this by
-    // doing a 2-phase update: 
-    //      first we render the elements re-ordered but with their old style
-    //      second we render the elements in the new order with their new style
-    // TODO: we could optimize this to only double-render re-ordered items
-
-    // render old styles in new order
-    let pvs = vs
-        .map(cloneV)
-        .map(v => {
-            const s = _prevStyles[v.key+""]
-            if (s)
-                v.attrs.style = s
-            return v;
-        })
-    m.render(playAreaEl, pvs);
-
-    setTimeout(() => {
-        // render new styles in new order
-        m.render(playAreaEl, vs);
-
-        _prevStyles = vs
-            .filter(v => v.key)
-            .toDict(v => v.key+"", v => v.attrs.style)
-    });
+    vs = vs.sort((a, b) => (a.key as number) - (b.key as number));
+    m.render(playAreaEl, vs);
 }
 
 // helpers
