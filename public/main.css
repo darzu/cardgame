@@ -23,7 +23,7 @@ body {
     top: 0;
     left: 0;
     transform: translate(0px, 0px);
-    transition: transform .2s; /* Animation */
+    transition: transform 0.5s; /* Animation */
     
 }
 /* TODO: doesn't work with dynamic scale */
@@ -39,5 +39,17 @@ button {
 .hand-card {
     width: 60px;
     height: 110px;
+    background-color: #3333;
+}
+
+.board-card {
+    width: 64px;
+    height: 64px;
+    background-color: #3333;
+}
+
+.enemy {
+    width: 64px;
+    height: 64px;
     background-color: #3333;
 }

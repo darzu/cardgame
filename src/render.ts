@@ -2,102 +2,35 @@ import { Card, Enemy, GameState, Position } from "./main.js";
 import * as Mithril from './mithril.js'
 const m = (window as any).m as Mithril.Static;
 
-console.log("hello 2");
+console.log("hello from render.ts");
 
 let playAreaEl = document.getElementById("play-area") as HTMLDivElement;
-// let battleGridEl = document.getElementById("battle-grid") as HTMLDivElement;
-// let handGridEl = document.getElementById("hand-grid") as HTMLDivElement;
-// let drawPileEl = document.getElementById("draw-pile") as HTMLDivElement;
-// let discardPileEl = document.getElementById("discard-pile") as HTMLDivElement;
 
-// function drawEnt(c: Card | Enemy, height: number) {
-//     let content = "";
-//     if (c instanceof Card) content = `${c.name} h${c.health}`;
-//     else if (c instanceof Enemy) content = `${c.name} h${c.health}`;
+type Attrs = { class: string, style: string, key: string }
+type Vnode<A> = Mithril.Vnode<A>;
 
-//     const n = document.createElement("div");
-//     n.classList.add("battle-cell");
-//     n.style.background = "#333A";
-//     n.style.gridColumn = (c.x + 1).toString();
-//     n.style.gridRow = (height - c.y + 1).toString();
-//     n.innerText = content;
-//     return n;
-// }
-
-// function renderDeckCardBack(c: Card): HTMLDivElement {
-//     let content = "back";
-
-//     const n = document.createElement("div");
-//     n.classList.add("card-cell");
-//     n.style.background = "#333A";
-//     n.innerText = content;
-//     return n;
-// }
-
-// function renderDeckCard(c: Card): HTMLDivElement {
-//     let content = "i'm a card";
-
-//     const n = document.createElement("div");
-//     n.classList.add("card-cell");
-//     n.style.background = "#333A";
-//     n.innerText = content;
-//     return n;
-// }
-
-// function renderHand(h: Card[]) {
-//     handGridEl.style.gridTemplateRows = `repeat(${1}, 114px)`;
-//     handGridEl.style.gridTemplateColumns = `repeat(${5}, 64px)`;
-
-//     const es = h.map(renderDeckCard).map((n, i) => {
-//         n.style.gridColumn = (i + 1).toString();
-//         n.style.gridRow = "1";
-//         return n;
-//     });
-
-//     replaceChildren(handGridEl, es);
-// }
-
-// function renderDrawPile(h: Card[]) {
-//     const es = h.map(renderDeckCardBack).map((n, i) => {
-//         n.style.gridColumn = (i + 1).toString();
-//         n.style.gridRow = "1";
-//         return n;
-//     });
-
-//     replaceChildren(drawPileEl, es);
-// }
-
-// function renderDiscardPile(h: Card[]) {
-//     const es = h.map(renderDeckCard).map((n, i) => {
-//         n.style.gridColumn = (i + 1).toString();
-//         n.style.gridRow = "1";
-//         return n;
-//     });
-
-//     replaceChildren(discardPileEl, es);
-// }
-
-type Attrs = { class: string, style: string }
-type Vnode = Mithril.Vnode<Attrs, any>;
-
-function mkHandCard(c: Card): Vnode {
-    const v = m("div", { class: "hand-card", style: "" }, c.name);
+function mkHandCard(c: Card): Vnode<Attrs> {
+    const v = m("div", { class: "hand-card", style: "", key: c.id, "data-key": c.id }, c.id);
     return v;
 }
 const place = ({ x, y }: Position) => `translate(${x}px, ${y}px)`;
 const rot = (turn: number) => `rotate(${turn}turn)`;
-function transform(v: Vnode, ...ops: string[]): Vnode {
+const scaleX = (x: number) => `scaleX(${x})`;
+function transform<A extends Attrs>(v: Vnode<A>, ...ops: string[]): Vnode<A> {
     v.attrs.style += "transform: " + ops.join(" ") + ";"
     return v;
 }
 
-function mkCardPile(cs: Card[], { x, y }: Position) {
-    const rotRange = 1;
-    const rotStep = rotRange / cs.length;
+function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false) {
+    const rotRange = 0.5;
+    const rotStep = 0.05;
+    // const rotStep = rotRange / cs.length;
     const vs = cs.map(mkHandCard)
         .map((c, i) => transform(c,
             place({ x: x + i * 2, y: y }),
-            rot(-0.5*rotRange + rotStep * i)
+            rot(rotStep * i),
+            faceDown ? scaleX(-1) : ''
+            // rot(-0.5*rotRange + rotStep * i)
         ))
     return vs;
 }
@@ -115,45 +48,78 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
     return vs;
 }
 
+function mkBoardCard(c: Card): Mithril.Vnode<Attrs & {card: Card}> {
+    const v = m("div", { class: "board-card", style: "", key: c.id, "data-key": c.id, card: c }, c.id);
+    return v;
+}
+function mkEnemy(e: Enemy): Mithril.Vnode<Attrs & {enemy: Enemy}> {
+    const v = m("div", { class: "enemy", style: "", key: e.id, "data-key": e.id, enemy: e }, e.id);
+    return v;
+}
+
 export function renderState(s: GameState) {
-    // grid
-    // removeChildren(battleGridEl);
-    // battleGridEl.style.gridTemplateRows = `repeat(${s.height}, 64px)`;
-    // battleGridEl.style.gridTemplateColumns = `repeat(${s.width}, 64px)`;
-
-    // const es = [...s.enemies, ...s.cardsInPlay].map((e) => drawEnt(e, s.height));
-    // es.forEach((e) => battleGridEl.appendChild(e));
-
-    // // hand
-    // renderHand(s.hand);
-
-    // // draw pile
-    // renderDrawPile(s.drawPile);
-
-    // // discard pile
-    // renderDiscardPile(s.discardPile);
-
-    // // mithril ?
-
-    // // ((window as any).m as Mithril).render(document.body, "hello world");   
-    // // diffhtml ?
-    // // m.render(document.body, "hello world");    
-    // // let r = m("div", "foo")
-
-    // const cs = s.hand
-    //     .map(mkHandCard)
-    //     .map((c, i) => translate(c, {x: i * 24, y: 64 * turn}))
+    // board
+    const gridStart = {x: 24, y: 24}
+    const gridSize = 68;
+    const inPlayCards = s.cardsInPlay.map(mkBoardCard)
+        .map((c, i) => transform(c,
+            place({ x: gridStart.x + c.attrs.card.x * gridSize, y: gridStart.y + (s.height - c.attrs.card.y) * gridSize}),
+        ))
+    const enemies = s.enemies.map(mkEnemy)
+        .map((c, i) => transform(c,
+            place({ x: gridStart.x + c.attrs.enemy.x * gridSize, y: gridStart.y + (s.height - c.attrs.enemy.y) * gridSize}),
+        ))
+    
+    // cards
     const pileWidth = 170;
-    const drawPile = mkCardPile(s.drawPile, { x: 40, y: 420 })
+    const drawPile = mkCardPile(s.drawPile, { x: 40, y: 420 }, true)
     const maxHandWidth = 5 * 64;
     const handWidth = s.hand.length * 64;
     const handPile = mkCardHand(s.hand, { x: pileWidth + maxHandWidth*0.5 - handWidth*0.5, y: 420 })
     const discardPile = mkCardPile(s.discardPile, { x: 170 + 5 * 64 + 70, y: 420 })
-    const allCards = [...drawPile, ...handPile, ...discardPile]
-    m.render(playAreaEl, allCards);
+    const allDeckCards = [...drawPile, ...handPile, ...discardPile]
+
+    // render
+    const all = [...allDeckCards, ...inPlayCards, ...enemies];
+    renderAll(all);
+}
+
+let _prevStyles: {[key: string]: string} = {}
+function renderAll(vs: Vnode<any>[]) {
+    // we want to have smooth CSS animations even with DOM re-ordering.
+    // Mithril will ensure the DOM element stays the same during a re-order,
+    // but CSS animations won't happen after a re-order. So we fix this by
+    // doing a 2-phase update: 
+    //      first we render the elements re-ordered but with their old style
+    //      second we render the elements in the new order with their new style
+    // TODO: we could optimize this to only double-render re-ordered items
+
+    // render old styles in new order
+    let pvs = vs
+        .map(cloneV)
+        .map(v => {
+            const s = _prevStyles[v.key+""]
+            if (s)
+                v.attrs.style = s
+            return v;
+        })
+    m.render(playAreaEl, pvs);
+
+    setTimeout(() => {
+        // render new styles in new order
+        m.render(playAreaEl, vs);
+
+        _prevStyles = vs
+            .filter(v => v.key)
+            .toDict(v => v.key+"", v => v.attrs.style)
+    });
 }
 
 // helpers
+function cloneV<A>(v: Vnode<A>): Vnode<A> {
+    return m(v.tag as string, {...v.attrs}, Array.isArray(v.children) ? [...v.children] : v.children)
+}
+
 function removeChildren(n: Node) {
     while (n.firstChild) {
         n.removeChild(n.firstChild);
@@ -163,4 +129,18 @@ function removeChildren(n: Node) {
 function replaceChildren(el: Node, children: Node[]) {
     removeChildren(el);
     children.forEach((c) => el.appendChild(c));
+}
+
+// array helpers
+Object.defineProperty(Array.prototype, 'toDict', {
+    value: function<T, V>(key: (t: T) => string, val: (t: T) => V): {[key: string]: V} {
+        const d: {[key: string]: V} = {};
+        (this as unknown as T[]).forEach(t => d[key(t)] = val(t));
+        return d;
+    }
+});
+declare global {
+    interface Array<T> {
+        toDict<V>(key: (t: T) => string, val: (t: T) => V): {[key: string]: V};
+    }
 }

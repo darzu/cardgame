@@ -1,17 +1,6 @@
 import { renderState } from './render.js';
 
-
-// function isIn(xy: Position, box: Box): boolean {
-//     if (xy.x < box.x || box.x + box.width <= xy.x)
-//         return false;
-//     if (xy.y < box.y || box.y + box.height <= xy.y)
-//         return false;
-//     return true;
-// }
-
-// function assert(b: boolean) {
-//     throw
-// }
+console.log("hello from main.ts")
 
 function assert(cond: boolean, msg: string): void | never {
     if (!cond)
@@ -93,8 +82,8 @@ export class GameState {
         // draw
         // TODO: hand size?
         if (this.drawPile.length)
-            this.hand.push(this.drawPile.pop()!)
-        if (this.hand.length > 5)
+            this.hand.unshift(this.drawPile.pop()!)
+        while (this.hand.length > 5)
             this.discardPile.push(this.hand.pop()!)
     }
 }
@@ -138,6 +127,7 @@ export type Position = {
     y: number
 }
 type Box = Position & Size;
+let NEXT_ID = 1;
 
 export class Card {
     health: number = 0;
@@ -147,6 +137,11 @@ export class Card {
     x: number;
     y: number;
     name: string = "card";
+
+    id: number;
+    constructor() {
+        this.id = NEXT_ID++;
+    }
 
     activate(state: GameState) {}
     takeDmg(damage: number) {
@@ -181,6 +176,11 @@ export abstract class Enemy {
     x: number;
     y: number;
 
+    id: number;
+    constructor() {
+        this.id = NEXT_ID++;
+    }
+
     activate(state: GameState): void {}
     takeDmg(damage: number) {
         this.health -= damage;
@@ -214,7 +214,6 @@ function startNextTurn(state: GameState) {
 function main() {
     console.log("Hello, world!")
 
-    // const grid: Grid = new Grid({width: 3, height: 5});
     const state = new GameState({
         width: 3,
         height: 5,
@@ -223,7 +222,6 @@ function main() {
         hand: [],
         drawPile: [],
         discardPile: [],
-        // grid
     });
 
     state.cardsInPlay.push(mk(PeaShooter, {x: 0, y: 1}))
@@ -249,17 +247,8 @@ function main() {
     state.drawPile.push(mk(PeaShooter))
     state.discardPile.push(mk(PeaShooter))
     state.discardPile.push(mk(PeaShooter))
-
-    // state.cardsInPlay.push(Object.assign(new PeaShooter(), {x: 0, y: 1}))
-    // state.enemies.push(Object.assign(new LittleThing(), {x: 0, y: 3}))
-    // state.enemies.push(Object.assign(new LittleThing(), {x: 0, y: 4}))
-    // state.grid.columns[0][1] = new PeaShooter();
-    // state.grid.columns[0][3] = new LittleThing();
-    // state.grid.columns[0][4] = new LittleThing();
     
-    let mainEl = document.getElementById("main") as HTMLDivElement;
     renderState(state);
-    // startNextTurn(state);
 
     function endTurnClick() {
         startNextTurn(state);
