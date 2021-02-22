@@ -1,4 +1,4 @@
-import { Card, Enemy, GameState, Position } from "./main.js";
+import { Card, Enemy, GameState, onCardClick, Position } from "./main.js";
 import * as Mithril from './mithril.js'
 const m = (window as any).m as Mithril.Static;
 
@@ -9,8 +9,22 @@ let playAreaEl = document.getElementById("play-area") as HTMLDivElement;
 type Attrs = { class: string, style: string, key: string }
 type Vnode<A> = Mithril.Vnode<A>;
 
+function mkPileCard(c: Card): Vnode<Attrs> {
+    const v = m("div", { class: "hand-card", style: "", key: c.id, "data-key": c.id }, 
+        m("div", c.id)
+    );
+    return v;
+}
 function mkHandCard(c: Card): Vnode<Attrs> {
-    const v = m("div", { class: "hand-card", style: "", key: c.id, "data-key": c.id }, c.id);
+    const v = m("div", { 
+        class: "hand-card in-hand", 
+        style: "", 
+        key: c.id, 
+        "data-key": c.id,
+        onclick: () => onCardClick(c)
+    }, 
+        m("div", c.id)
+    );
     return v;
 }
 const place = ({ x, y }: Position) => `translate(${x}px, ${y}px)`;
@@ -25,7 +39,7 @@ function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false) {
     const rotRange = 0.5;
     const rotStep = 0.05;
     // const rotStep = rotRange / cs.length;
-    const vs = cs.map(mkHandCard)
+    const vs = cs.map(mkPileCard)
         .map((c, i) => transform(c,
             place({ x: x + i * 2, y: y }),
             rot(rotStep * i),
@@ -41,6 +55,11 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
     const rotStep = rotRange / (cs.length - 1);
 
     const vs = cs.map(mkHandCard)
+        // TODO:
+        // .map(c => {
+        //     c.attrs.class += " in-hand";
+        //     return c;
+        // })
         .map((c, i) => transform(c,
             place({ x: x + i * 64, y: y + curve(i) }),
             rot(-0.5*rotRange + rotStep * i)

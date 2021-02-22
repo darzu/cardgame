@@ -272,3 +272,7 @@ function repeat<X>(x: X, n: number): X[] {
 //     }
 //     return r
 // }
+
+export function onCardClick(c: Card) {
+    console.log("card clicked: " + c.id)
+}
