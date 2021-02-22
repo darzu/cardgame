@@ -62,7 +62,7 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
         // })
         .map((c, i) => transform(c,
             place({ x: x + i * 64, y: y + curve(i) }),
-            rot(-0.5*rotRange + rotStep * i)
+            cs.length > 1 ? rot(-0.5*rotRange + rotStep * i) : ''
         ))
     return vs;
 }

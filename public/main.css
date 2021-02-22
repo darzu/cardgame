@@ -22,7 +22,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    transition: transform 0.5s; /* Animation */
+    transition: transform 0.5s, width 0.5s, height 0.5s; /* Animation */
     
 }
 #play-area * * {

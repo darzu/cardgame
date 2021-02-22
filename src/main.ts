@@ -211,18 +211,18 @@ function startNextTurn(state: GameState) {
     renderState(state);
 }
 
+const state = new GameState({
+    width: 3,
+    height: 5,
+    enemies: [],
+    cardsInPlay: [],
+    hand: [],
+    drawPile: [],
+    discardPile: [],
+});
+
 function main() {
     console.log("Hello, world!")
-
-    const state = new GameState({
-        width: 3,
-        height: 5,
-        enemies: [],
-        cardsInPlay: [],
-        hand: [],
-        drawPile: [],
-        discardPile: [],
-    });
 
     state.cardsInPlay.push(mk(PeaShooter, {x: 0, y: 1}))
     state.enemies.push(mk(LittleThing, {x: 0, y: 3}))
@@ -275,4 +275,13 @@ function repeat<X>(x: X, n: number): X[] {
 
 export function onCardClick(c: Card) {
     console.log("card clicked: " + c.id)
+
+    // remove from hand
+    state.hand = state.hand.filter(h => h.id !== c.id)
+    // place on board
+    c.x = 3
+    c.y = 3
+    state.cardsInPlay.push(c)
+
+    renderState(state)
 }
