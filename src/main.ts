@@ -301,3 +301,21 @@ export function onCardClick(c: Card) {
 
     renderState(state)
 }
+
+export function onGridClick({x,y}: Position) {
+    console.log(`click: (${x}, ${y})`)
+
+    if (state.selected) {
+        // remove from hand
+        state.hand = state.hand.filter(h => h.id !== state.selected!.id)
+        // place on board
+        state.selected.x = x;
+        state.selected.y = y;
+        state.cardsInPlay.push(state.selected)
+
+        state.selected = undefined;
+
+        renderState(state)
+    }
+
+}

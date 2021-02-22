@@ -1,4 +1,4 @@
-import { Card, Enemy, GameState, getNextId, onCardClick, Position, Size } from "./main.js";
+import { Card, Enemy, GameState, getNextId, onCardClick, onGridClick, Position, Size } from "./main.js";
 import * as Mithril from './mithril.js'
 const m = (window as any).m as Mithril.Static;
 
@@ -106,6 +106,10 @@ function mkGridSquare({x, y}: Position): Renderable{
         class: "grid-square",
         style: "",
         key: getNextId(),
+        onclick: (e) => {
+            e.stopPropagation()
+            onGridClick({x, y})
+        },
         content: [
             {tag: "div", content: ""}
         ]
