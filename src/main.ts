@@ -1,4 +1,4 @@
-import { renderState } from './render.js';
+import { playAreaEl, renderState } from './render.js';
 
 console.log("hello from main.ts")
 
@@ -37,6 +37,7 @@ export class GameState {
     drawPile: Card[]
     hand: Card[]
     discardPile: Card[]
+    selected: Card | undefined;
 
     constructor(init: Partial<GameState>) {
         Object.assign(this, init);
@@ -254,6 +255,12 @@ function main() {
         startNextTurn(state);
     }
     (window as any).endTurnClick = endTurnClick
+
+    playAreaEl.onclick = function() {
+        // deselect
+        state.selected = undefined;
+        renderState(state)
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => main(), false);
@@ -277,11 +284,15 @@ export function onCardClick(c: Card) {
     console.log("card clicked: " + c.id)
 
     // remove from hand
-    state.hand = state.hand.filter(h => h.id !== c.id)
-    // place on board
-    c.x = 3
-    c.y = 3
-    state.cardsInPlay.push(c)
+    // state.hand = state.hand.filter(h => h.id !== c.id)
+    // // place on board
+    // c.x = 3
+    // c.y = 3
+    // state.cardsInPlay.push(c)
+    if (state.selected === c)
+        state.selected = undefined
+    else
+        state.selected = c;
 
     renderState(state)
 }

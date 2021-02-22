@@ -4,39 +4,40 @@ const m = (window as any).m as Mithril.Static;
 
 console.log("hello from render.ts");
 
-let playAreaEl = document.getElementById("play-area") as HTMLDivElement;
+export const playAreaEl = document.getElementById("play-area") as HTMLDivElement;
 
-type Attrs = { class: string, style: string, key: number }
-type Vnode<A> = Mithril.Vnode<A>;
+interface Renderable {
+    tag: string,
+    class?: string,
+    style?: string,
+    key?: number,
+    onclick?: (e: MouseEvent) => void,
+    content?: string | Renderable[],
+}
 
-function mkPileCard(c: Card): Vnode<Attrs> {
-    const v = m("div", { class: "hand-card", style: "", key: c.id, "data-key": c.id }, 
-        m("div", c.id)
-    );
+function mkDeckCard(c: Card): Renderable {
+    const v: Renderable = {
+        tag: "div", class: "hand-card", style: "", key: c.id,
+        content: [
+            {tag: "div", content: c.id+""}
+        ]
+    }
     return v;
 }
-function mkHandCard(c: Card): Vnode<Attrs> {
-    const v = m("div", { 
-        class: "hand-card in-hand", 
-        style: "", 
-        key: c.id, 
-        "data-key": c.id,
-        onclick: () => onCardClick(c)
-    }, 
-        m("div", c.id)
-    );
-    return v;
-}
+
+// TODO: TransformBuilder
 const place = ({ x, y }: Position) => `translate(${x}px, ${y}px)`;
 const rot = (turn: number) => `rotate(${turn}turn)`;
 const scaleX = (x: number) => `scaleX(${x})`;
-function transform<A extends Attrs>(v: Vnode<A>, ...ops: string[]): Vnode<A> {
-    v.attrs.style += "transform: " + ops.join(" ") + ";"
+function transform(v: Renderable, ...ops: string[]): Renderable {
+    v.style = (v.style || "") + "transform: " + ops.join(" ") + ";"
     return v;
 }
 
 let _randRots: {[id: number]: number} = {}
 let getRandRot = (id: number) => {
+    if (!id)
+        return Math.random() - 0.5
     if (!_randRots[id])
         _randRots[id] = Math.random() - 0.5
     return _randRots[id]
@@ -46,10 +47,10 @@ function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false) {
     const rotRange = 0.5;
     const rotStep = 0.05;
     // const rotStep = rotRange / cs.length;
-    const vs = cs.map(mkPileCard)
+    const vs = cs.map(mkDeckCard)
         .map((c, i) => transform(c,
             place({ x: x + i * 2, y: y }),
-            rot(getRandRot(c.attrs.key)),
+            rot(getRandRot(c.key || 0)),
             // rot(rotStep * i),
             faceDown ? scaleX(-1) : ''
             // rot(-0.5*rotRange + rotStep * i)
@@ -62,12 +63,15 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
     const rotRange = 0.1;
     const rotStep = rotRange / (cs.length - 1);
 
-    const vs = cs.map(mkHandCard)
-        // TODO:
-        // .map(c => {
-        //     c.attrs.class += " in-hand";
-        //     return c;
-        // })
+    const vs = cs.map(mkDeckCard)
+        .map((c, i) => {
+            c.class += " in-hand";
+            c.onclick = (e) => {
+                e.stopPropagation()
+                onCardClick(cs[i])
+            };
+            return c;
+        })
         .map((c, i) => transform(c,
             place({ x: x + i * 64, y: y + curve(i) }),
             cs.length > 1 ? rot(-0.5*rotRange + rotStep * i) : ''
@@ -75,35 +79,68 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
     return vs;
 }
 
-function mkBoardCard(c: Card): Mithril.Vnode<Attrs & {card: Card}> {
-    const v = m("div", { class: "board-card", style: "", key: c.id, "data-key": c.id, card: c }, c.id);
+function mkBoardCard(c: Card): Renderable{
+    const v: Renderable = {
+        tag: "div", 
+        class: "board-card", 
+        style: "", 
+        key: c.id, 
+        content: c.id+"",
+    }
     return v;
 }
-function mkEnemy(e: Enemy): Mithril.Vnode<Attrs & {enemy: Enemy}> {
-    const v = m("div", { class: "enemy", style: "", key: e.id, "data-key": e.id, enemy: e }, e.id);
+function mkEnemy(e: Enemy): Renderable {
+    const v: Renderable = {
+        tag: "div", 
+        class: "enemy", 
+        style: "", 
+        key: e.id,
+        content: e.id+"",
+    };
     return v;
 }
 
 export function renderState(s: GameState) {
-    // board
+    // -- BOARD
     const gridStart = {x: 24, y: 24}
     const gridSize = 68;
+
+    // player cards
     const inPlayCards = s.cardsInPlay.map(mkBoardCard)
-        .map((c, i) => transform(c,
-            place({ x: gridStart.x + c.attrs.card.x * gridSize, y: gridStart.y + (s.height - c.attrs.card.y) * gridSize}),
-        ))
+        .map((c, i) => {
+            const ent = s.cardsInPlay[i]
+            return transform(c,
+                place({ x: gridStart.x + ent.x * gridSize, y: gridStart.y + (s.height - ent.y) * gridSize}),
+            )
+        })
+
+    /// enemies
     const enemies = s.enemies.map(mkEnemy)
-        .map((c, i) => transform(c,
-            place({ x: gridStart.x + c.attrs.enemy.x * gridSize, y: gridStart.y + (s.height - c.attrs.enemy.y) * gridSize}),
-        ))
+        .map((c, i) => {
+            const ent = s.enemies[i]
+            return transform(c,
+                place({ x: gridStart.x + ent.x * gridSize, y: gridStart.y + (s.height - ent.y) * gridSize}),
+            )
+        })
     
-    // cards
+    // -- DECK
     const pileWidth = 170;
+    
+    // draw pile
     const drawPile = mkCardPile(s.drawPile, { x: 40, y: 420 }, true)
+
+    // hand
     const maxHandWidth = 5 * 64;
     const handWidth = s.hand.length * 64;
     const handPile = mkCardHand(s.hand, { x: pileWidth + maxHandWidth*0.5 - handWidth*0.5, y: 420 })
+    // selected card
+    handPile.filter(c => c.key === s.selected?.id)
+        .forEach(c => c.class += " selected")
+
+    // discard pile
     const discardPile = mkCardPile(s.discardPile, { x: 170 + 5 * 64 + 70, y: 420 })
+
+    // all
     const allDeckCards = [...drawPile, ...handPile, ...discardPile]
 
     // render
@@ -111,13 +148,26 @@ export function renderState(s: GameState) {
     renderAll(all);
 }
 
-function renderAll(vs: Vnode<any>[]) {
+function mkVnode(v: Renderable): Mithril.Vnode<any> | string {
+    if (typeof v === "string")
+        return v;
+    const children = Array.isArray(v.content)
+        ? v.content.map(mkVnode)
+        : v.content || ""
+    // console.dir(v)
+    // console.dir(children)
+
+    return m(v.tag, {class: v.class, style: v.style, key: v.key, onclick: v.onclick}, children)
+}
+
+function renderAll(vs: Renderable[]) {
     vs = vs.sort((a, b) => (a.key as number) - (b.key as number));
-    m.render(playAreaEl, vs);
+    const rs = vs.map(mkVnode)
+    m.render(playAreaEl, rs);
 }
 
 // helpers
-function cloneV<A>(v: Vnode<A>): Vnode<A> {
+function cloneV<A>(v: Mithril.Vnode<A>): Mithril.Vnode<A> {
     return m(v.tag as string, {...v.attrs}, Array.isArray(v.children) ? [...v.children] : v.children)
 }
 

@@ -45,6 +45,10 @@ button {
 .hand-card.in-hand div:hover {
     transform: scale(1.5);    
 }
+.hand-card.selected div {
+    background-color: rgba(255, 230, 0, 0.2);
+    transform: scale(1.6);
+}
 
 .board-card {
     width: 64px;
