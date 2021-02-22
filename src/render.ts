@@ -6,7 +6,7 @@ console.log("hello from render.ts");
 
 let playAreaEl = document.getElementById("play-area") as HTMLDivElement;
 
-type Attrs = { class: string, style: string, key: string }
+type Attrs = { class: string, style: string, key: number }
 type Vnode<A> = Mithril.Vnode<A>;
 
 function mkPileCard(c: Card): Vnode<Attrs> {
@@ -35,6 +35,13 @@ function transform<A extends Attrs>(v: Vnode<A>, ...ops: string[]): Vnode<A> {
     return v;
 }
 
+let _randRots: {[id: number]: number} = {}
+let getRandRot = (id: number) => {
+    if (!_randRots[id])
+        _randRots[id] = Math.random() - 0.5
+    return _randRots[id]
+}
+
 function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false) {
     const rotRange = 0.5;
     const rotStep = 0.05;
@@ -42,7 +49,8 @@ function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false) {
     const vs = cs.map(mkPileCard)
         .map((c, i) => transform(c,
             place({ x: x + i * 2, y: y }),
-            rot(rotStep * i),
+            rot(getRandRot(c.attrs.key)),
+            // rot(rotStep * i),
             faceDown ? scaleX(-1) : ''
             // rot(-0.5*rotRange + rotStep * i)
         ))
