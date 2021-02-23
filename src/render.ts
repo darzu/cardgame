@@ -14,6 +14,7 @@ interface Transform {
     width?: number,
     height?: number,
     turn?: number,
+    zIndex?: number,
 }
 interface Renderable {
     tag: string,
@@ -38,10 +39,6 @@ function mkDeckCard(c: Card): Renderable {
     return v;
 }
 
-// TODO: TransformBuilder
-const placeStr = ({ x, y }: Position) => `translate(${x}px, ${y}px)`;
-const rotStr = (turn: number) => `rotate(${turn}turn)`;
-const scaleXStr = (x: number) => `scaleX(${x})`;
 const place = (r: Transform, { x, y }: Position) => {
     return {
         ...r,
@@ -76,6 +73,8 @@ function transformToStr(t?: Transform): string {
         s += ` width: ${t?.width}px; `
     if (t?.height)
         s += ` height: ${t?.height}px; `
+    if (t?.zIndex)
+        s += ` z-index: ${t?.zIndex}; `
     let st = ""
     {
         if (t?.x)
@@ -114,6 +113,7 @@ function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false, rotRange =
             // rot(rotStep * i),
             if (faceDown)
                 c.transform = scaleX(c.transform, -1.0);
+            c.transform.zIndex = i
             // rot(-0.5*rotRange + rotStep * i)
             return c;
         })
@@ -139,6 +139,7 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
             if (cs.length > 1)
                 c.transform = rot(c.transform, -0.5*rotRange + rotStep * i);
             c.transform = scale(c.transform, 1.5, 1.5);
+            c.transform.zIndex = i
             return c
         })
     return vs;

@@ -49,13 +49,13 @@ button {
     color: white;
 }
 .hand-card.in-hand:hover {
-    z-index: 2;
+    z-index: 1000 !important;
 }
 .hand-card.in-hand div:hover {
     transform: scale(1.5);
 }
 .hand-card.selected {
-    z-index: 2;
+    z-index: 1000 !important;
 }
 .hand-card.selected div {
     border-color: rgba(255, 230, 0);
