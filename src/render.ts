@@ -35,22 +35,22 @@ function transform(v: Renderable, ...ops: string[]): Renderable {
 }
 
 let _randRots: {[id: number]: number} = {}
-let getRandRot = (id: number) => {
+let getRandRot = (id: number, turnRange: number) => {
+    const idx = id + turnRange;
     if (!id)
         return Math.random() - 0.5
-    if (!_randRots[id])
-        _randRots[id] = Math.random() - 0.5
-    return _randRots[id]
+    if (!_randRots[idx])
+        _randRots[idx] = (Math.random() - 0.5) * turnRange
+    return _randRots[idx]
 }
 
-function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false) {
-    const rotRange = 0.5;
+function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false, rotRange = 1.0) {
     const rotStep = 0.05;
     // const rotStep = rotRange / cs.length;
     const vs = cs.map(mkDeckCard)
         .map((c, i) => transform(c,
             place({ x: x + i * 2 - (cs.length - 1) * 0.5 * 2 - cardSize.width * 0.5, y: y }),
-            rot(getRandRot(c.key || 0)),
+            rot(getRandRot(c.key || 0, rotRange)),
             // rot(rotStep * i),
             faceDown ? scaleX(-1) : ''
             // rot(-0.5*rotRange + rotStep * i)
@@ -189,7 +189,7 @@ export function renderState(s: GameState) {
     
     // -- DECK
     // draw pile
-    const drawPile = mkCardPile(s.drawPile, { x: cardSize.height * 0.7, y: cardsY }, true)
+    const drawPile = mkCardPile(s.drawPile, { x: cardSize.height * 0.7, y: cardsY }, true, 0.1)
 
     // hand
     const handWidth = s.hand.length * 64;
@@ -203,7 +203,7 @@ export function renderState(s: GameState) {
         grid = getGridSquares(s)
 
     // discard pile
-    const discardPile = mkCardPile(s.discardPile, { x: playAreaBox.width - cardSize.height * 0.7, y: cardsY })
+    const discardPile = mkCardPile(s.discardPile, { x: playAreaBox.width - cardSize.height * 0.7, y: cardsY }, false, 1.0)
 
     // all
     const allDeckCards = [...drawPile, ...handPile, ...discardPile]
