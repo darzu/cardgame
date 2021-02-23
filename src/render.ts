@@ -17,7 +17,7 @@ interface Renderable {
 
 function mkDeckCard(c: Card): Renderable {
     const v: Renderable = {
-        tag: "div", class: "hand-card", style: "", key: c.id,
+        tag: "div", class: "hand-card", style: `width: ${cardSize.width}px; height: ${cardSize.height}px; `, key: c.id,
         content: [
             {tag: "div", content: c.id+""}
         ]
@@ -73,7 +73,7 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
             return c;
         })
         .map((c, i) => transform(c,
-            place({ x: x + i * 64, y: y + curve(i) }),
+            place({ x: x + i * (cardSize.width + 4), y: y + curve(i) }),
             cs.length > 1 ? rot(-0.5*rotRange + rotStep * i) : ''
         ))
     return vs;
@@ -142,7 +142,7 @@ let gridBox: Size & Position;
 let gridRowColCount: Size;
 let centerX: number;
 let playAreaBox: Size & Position;
-const cardSize = {width: 60, height: 110};
+const cardSize = {width: 120, height: 220};
 let cardsY: number;
 export function initRenderer(s: GameState) {
     playAreaBox = getPlayAreaBox()
@@ -189,10 +189,10 @@ export function renderState(s: GameState) {
     
     // -- DECK
     // draw pile
-    const drawPile = mkCardPile(s.drawPile, { x: cardSize.height * 0.7, y: cardsY }, true, 0.1)
+    const drawPile = mkCardPile(s.drawPile, { x: cardSize.height * 0.6, y: cardsY }, true, 0.1)
 
     // hand
-    const handWidth = s.hand.length * 64;
+    const handWidth = s.hand.length * (cardSize.width + 4);
     const handPile = mkCardHand(s.hand, { x: centerX - handWidth*0.5, y: cardsY })
     // selected card
     handPile.filter(c => c.key === s.selected?.id)
@@ -203,7 +203,7 @@ export function renderState(s: GameState) {
         grid = getGridSquares(s)
 
     // discard pile
-    const discardPile = mkCardPile(s.discardPile, { x: playAreaBox.width - cardSize.height * 0.7, y: cardsY }, false, 1.0)
+    const discardPile = mkCardPile(s.discardPile, { x: playAreaBox.width - cardSize.height * 0.6, y: cardsY }, false, 1.0)
 
     // all
     const allDeckCards = [...drawPile, ...handPile, ...discardPile]
