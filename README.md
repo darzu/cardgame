@@ -21,7 +21,7 @@ $ tsc -w
 
 5. Run the server:
 ```
-$ cd ~/repos/game-starter/public
+$ cd ~/repos/game-starter/docs
 $ python -m SimpleHTTPServer 4321
 ```
 
@@ -32,7 +32,7 @@ $ open http://localhost:4321
 
 7. To build the game:
 - Edit src/main.ts
-- DON'T edit public/main**.js**, it is automatically generated each time main**.ts** is changed
+- DON'T edit docs/main**.js**, it is automatically generated each time main**.ts** is changed
 - Refresh the localhost:4321 webpage and your changes should show up!
 - If your code has an error, you'll see it in the typescript console window
 
