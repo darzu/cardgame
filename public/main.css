@@ -48,8 +48,14 @@ button {
     box-sizing: border-box;
     color: white;
 }
+.hand-card.in-hand:hover {
+    z-index: 2;
+}
 .hand-card.in-hand div:hover {
-    transform: scale(1.5);    
+    transform: scale(1.5);
+}
+.hand-card.selected {
+    z-index: 2;
 }
 .hand-card.selected div {
     border-color: rgba(255, 230, 0);

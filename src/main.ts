@@ -80,6 +80,9 @@ export class GameState {
         //     }
         // })
 
+        // unselect
+        this.selected = undefined;
+
         // draw
         // TODO: hand size?
         if (this.drawPile.length)

@@ -138,6 +138,7 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
             c.transform = place(c.transform!, { x: x + i * (cardSize.width + 4), y: y + curve(i) });
             if (cs.length > 1)
                 c.transform = rot(c.transform, -0.5*rotRange + rotStep * i);
+            c.transform = scale(c.transform, 1.5, 1.5);
             return c
         })
     return vs;
@@ -204,7 +205,7 @@ let gridBox: Size & Position;
 let gridRowColCount: Size;
 let centerX: number;
 let playAreaBox: Size & Position;
-const cardSize = {width: 120, height: 220};
+const cardSize = {width: 120 * 0.7, height: 220 * 0.7};
 let cardsY: number;
 export function initRenderer(s: GameState) {
     playAreaBox = getPlayAreaBox()
@@ -220,7 +221,7 @@ export function initRenderer(s: GameState) {
     getGridSquares(gridRowColCount);
 
     // hand placement
-    cardsY = gridBox.y + gridBox.height + 64;
+    cardsY = gridBox.y + gridBox.height + cardSize.height + 4;
 }
 
 const gridPad = 2;
@@ -256,7 +257,9 @@ export function renderState(s: GameState) {
     const handPile = mkCardHand(s.hand, { x: centerX - handWidth*0.5, y: cardsY })
     // selected card
     handPile.filter(c => c.key === s.selected?.id)
-        .forEach(c => c.class += " selected")
+        .forEach(c => {
+            c.class += " selected"
+        })
     // highlight grid
     let grid: Renderable[] = []
     if (s.selected)
