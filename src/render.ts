@@ -6,10 +6,20 @@ console.log("hello from render.ts");
 
 export const playAreaEl = document.getElementById("play-area") as HTMLDivElement;
 
+interface Transform {
+    scaleX?: number,
+    scaleY?: number,
+    x?: number,
+    y?: number,
+    width?: number,
+    height?: number,
+    turn?: number,
+}
 interface Renderable {
     tag: string,
     class?: string,
     style?: string,
+    transform?: Transform,
     key?: number,
     onclick?: (e: MouseEvent) => void,
     content?: string | Renderable[],
@@ -17,7 +27,10 @@ interface Renderable {
 
 function mkDeckCard(c: Card): Renderable {
     const v: Renderable = {
-        tag: "div", class: "hand-card", style: `width: ${cardSize.width}px; height: ${cardSize.height}px; `, key: c.id,
+        tag: "div", class: "hand-card", transform: {
+            width: cardSize.width,
+            height: cardSize.height,
+        }, style: ``, key: c.id,
         content: [
             {tag: "div", content: c.id+""}
         ]
@@ -26,12 +39,59 @@ function mkDeckCard(c: Card): Renderable {
 }
 
 // TODO: TransformBuilder
-const place = ({ x, y }: Position) => `translate(${x}px, ${y}px)`;
-const rot = (turn: number) => `rotate(${turn}turn)`;
-const scaleX = (x: number) => `scaleX(${x})`;
-function transform(v: Renderable, ...ops: string[]): Renderable {
-    v.style = (v.style || "") + "transform: " + ops.join(" ") + ";"
-    return v;
+const placeStr = ({ x, y }: Position) => `translate(${x}px, ${y}px)`;
+const rotStr = (turn: number) => `rotate(${turn}turn)`;
+const scaleXStr = (x: number) => `scaleX(${x})`;
+const place = (r: Transform, { x, y }: Position) => {
+    return {
+        ...r,
+        x, y
+    }
+}
+const rot = (r: Transform, turn: number) => {
+    return {
+        ...r,
+        turn
+    }
+}
+const scaleX = (r: Transform, scaleX: number) => {
+    return {
+        ...r,
+        scaleX: (r?.scaleX || 1.0) * scaleX
+    }
+}
+const scaleY = (r: Transform, scaleY: number) => {
+    return {
+        ...r,
+        scaleY: (r?.scaleY || 1.0) * scaleY
+    }
+}
+const scale = (r: Transform, x: number, y: number) => {
+    return scaleY(scaleX(r, x), y)
+}
+
+function transformToStr(t?: Transform): string {
+    let s = ""
+    if (t?.width)
+        s += ` width: ${t?.width}px; `
+    if (t?.height)
+        s += ` height: ${t?.height}px; `
+    let st = ""
+    {
+        if (t?.x)
+            st += ` translateX(${t?.x}px) `
+        if (t?.y)
+            st += ` translateY(${t?.y}px) `
+        if (t?.turn)
+            st += ` rotate(${t?.turn}turn) `
+        if (t?.scaleX)
+            st += ` scaleX(${t?.scaleX}) `
+        if (t?.scaleY)
+            st += ` scaleY(${t?.scaleY}) `
+    }
+    if (st)
+        s += ` transform: ${st};`
+    return s;
 }
 
 let _randRots: {[id: number]: number} = {}
@@ -48,13 +108,15 @@ function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false, rotRange =
     const rotStep = 0.05;
     // const rotStep = rotRange / cs.length;
     const vs = cs.map(mkDeckCard)
-        .map((c, i) => transform(c,
-            place({ x: x + i * 2 - (cs.length - 1) * 0.5 * 2 - cardSize.width * 0.5, y: y }),
-            rot(getRandRot(c.key || 0, rotRange)),
+        .map((c, i) => {
+            c.transform = place(c.transform!, { x: x + i * 2 - (cs.length - 1) * 0.5 * 2 - cardSize.width * 0.5, y: y });
+            c.transform = rot(c.transform, getRandRot(c.key || 0, rotRange));
             // rot(rotStep * i),
-            faceDown ? scaleX(-1) : ''
+            if (faceDown)
+                c.transform = scaleX(c.transform, -1.0);
             // rot(-0.5*rotRange + rotStep * i)
-        ))
+            return c;
+        })
     return vs;
 }
 function mkCardHand(cs: Card[], { x, y }: Position) {
@@ -72,10 +134,12 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
             };
             return c;
         })
-        .map((c, i) => transform(c,
-            place({ x: x + i * (cardSize.width + 4), y: y + curve(i) }),
-            cs.length > 1 ? rot(-0.5*rotRange + rotStep * i) : ''
-        ))
+        .map((c, i) => {
+            c.transform = place(c.transform!, { x: x + i * (cardSize.width + 4), y: y + curve(i) });
+            if (cs.length > 1)
+                c.transform = rot(c.transform, -0.5*rotRange + rotStep * i);
+            return c
+        })
     return vs;
 }
 
@@ -112,11 +176,9 @@ function mkGridSquare({x, y}: Position): Renderable{
         },
         content: [
             {tag: "div", content: ""}
-        ]
+        ],
+        transform: place({}, toGridPx({x, y})),
     }
-    v = transform(v, 
-        place(toGridPx({x, y}))
-    )
     return v
 }
 
@@ -173,18 +235,16 @@ export function renderState(s: GameState) {
     const inPlayCards = s.cardsInPlay.map(mkBoardCard)
         .map((c, i) => {
             const ent = s.cardsInPlay[i]
-            return transform(c,
-                place(toGridPx(ent)),
-            )
+            c.transform = place(c.transform!, toGridPx(ent));
+            return c
         })
 
     /// enemies
     const enemies = s.enemies.map(mkEnemy)
         .map((c, i) => {
             const ent = s.enemies[i]
-            return transform(c,
-                place(toGridPx(ent)),
-            )
+            c.transform = place(c.transform!, toGridPx(ent));
+            return c
         })
     
     // -- DECK
@@ -219,10 +279,12 @@ function mkVnode(v: Renderable): Mithril.Vnode<any> | string {
     const children = Array.isArray(v.content)
         ? v.content.map(mkVnode)
         : v.content || ""
+    
+    const style = v.style + " " + transformToStr(v.transform);
     // console.dir(v)
     // console.dir(children)
 
-    return m(v.tag, {class: v.class, style: v.style, key: v.key, onclick: v.onclick}, children)
+    return m(v.tag, {class: v.class, style, key: v.key, onclick: v.onclick}, children)
 }
 
 function renderAll(vs: Renderable[]) {
