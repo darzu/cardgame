@@ -174,7 +174,7 @@ let gridBox;
 let gridRowColCount;
 let centerX;
 let playAreaBox;
-const cardSize = { width: 120 * 0.7, height: 220 * 0.7 };
+const cardSize = { width: 120 * 0.5, height: 220 * 0.5 };
 let cardsY;
 export function initRenderer(s) {
     playAreaBox = getPlayAreaBox();

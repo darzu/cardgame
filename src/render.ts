@@ -210,7 +210,7 @@ let gridBox: Size & Position;
 let gridRowColCount: Size;
 let centerX: number;
 let playAreaBox: Size & Position;
-const cardSize = {width: 120 * 0.7, height: 220 * 0.7};
+const cardSize = {width: 120 * 0.5, height: 220 * 0.5};
 let cardsY: number;
 export function initRenderer(s: GameState) {
     playAreaBox = getPlayAreaBox()
