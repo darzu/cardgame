@@ -33,7 +33,9 @@ function mkDeckCard(c: Card): Renderable {
             height: cardSize.height,
         }, style: ``, key: c.id,
         content: [
-            {tag: "div", content: c.id+""}
+            {tag: "div", content: [
+                {tag: "span", content: c.id+""}
+            ]}
         ]
     }
     return v;
@@ -111,8 +113,10 @@ function mkCardPile(cs: Card[], { x, y }: Position, faceDown = false, rotRange =
             c.transform = place(c.transform!, { x: x + i * 2 - (cs.length - 1) * 0.5 * 2 - cardSize.width * 0.5, y: y });
             c.transform = rot(c.transform, getRandRot(c.key || 0, rotRange));
             // rot(rotStep * i),
-            if (faceDown)
+            if (faceDown) {
                 c.transform = scaleX(c.transform, -1.0);
+                c.class += " facedown "
+            }
             c.transform.zIndex = i
             // rot(-0.5*rotRange + rotStep * i)
             return c;
@@ -139,7 +143,7 @@ function mkCardHand(cs: Card[], { x, y }: Position) {
             if (cs.length > 1)
                 c.transform = rot(c.transform, -0.5*rotRange + rotStep * i);
             c.transform = scale(c.transform, 1.5, 1.5);
-            c.transform.zIndex = i
+            c.transform.zIndex = i + 100;
             return c
         })
     return vs;
@@ -284,11 +288,11 @@ function mkVnode(v: Renderable): Mithril.Vnode<any> | string {
         ? v.content.map(mkVnode)
         : v.content || ""
     
-    const style = v.style + " " + transformToStr(v.transform);
+    const style = (v.style ? v.style + " " : "") + transformToStr(v.transform);
     // console.dir(v)
     // console.dir(children)
 
-    return m(v.tag, {class: v.class, style, key: v.key, onclick: v.onclick}, children)
+    return m(v.tag, {class: v.class || undefined, style: style || undefined, key: v.key, onclick: v.onclick}, children)
 }
 
 function renderAll(vs: Renderable[]) {

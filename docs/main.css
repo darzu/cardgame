@@ -61,6 +61,9 @@ button {
     border-color: rgba(255, 230, 0);
     transform: scale(1.6);
 }
+.hand-card.facedown * * {
+    visibility: hidden;
+}
 
 .board-card {
     width: 64px;
